@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모바일 카운팅 앱</title>
+    <style>
+        :root {
+            --background: #e0e5ec;
+            --text-color: #1e2022;
+            --shadow-color: #a3b1c6;
+            --highlight-color: #ffffff;
+            --button-color: #4A90E2;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background);
+            color: var(--text-color);
+        }
+        .container {
+            background-color: var(--background);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                8px 8px 15px var(--shadow-color), 
+                -8px -8px 15px var(--highlight-color);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 15px;
+            background-color: var(--background);
+            color: var(--text-color);
+            font-size: 16px;
+            box-shadow: 
+                inset 5px 5px 10px var(--shadow-color), 
+                inset -5px -5px 10px var(--highlight-color);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 15px;
+            background-color: var(--button-color);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                5px 5px 10px var(--shadow-color), 
+                -5px -5px 10px var(--highlight-color);
+        }
+        button:hover {
+            background-color: #3a7abd;
+        }
+        button:active {
+            box-shadow: 
+                inset 5px 5px 10px #3a7abd, 
+                inset -5px -5px 10px #5aa5ff;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: var(--background);
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 
+                8px 8px 15px var(--shadow-color), 
+                -8px -8px 15px var(--highlight-color);
+        }
+        #logoutBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: auto;
+            padding: 10px 15px;
+            background-color: #FF3B30;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginPage" class="container">
+        <h2>로그인</h2>
+        <input type="text" id="userId" placeholder="사용자 ID를 입력하세요">
+        <label>
+            <input type="checkbox" id="rememberMe"> ID 저장
+        </label>
+        <button onclick="login()">로그인</button>
+    </div>
+
+    <div id="countingPage" class="container hidden">
+        <h2>카운팅</h2>
+        <button id="logoutBtn" onclick="logout()">로그아웃</button>
+        <input type="number" id="countInput" placeholder="숫자를 입력하세요" pattern="[0-9]*" inputmode="numeric">
+        <button onclick="submitCount()">확인</button>
+    </div>
+
+    <div id="gpsConsentModal" class="modal">
+        <div class="modal-content">
+            <p>GPS 좌표 수집에 동의하십니까?</p>
+            <button onclick="agreeToGPS()">동의</button>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <p>입력하신 숫자: <span id="confirmedCount"></span></p>
+            <button onclick="sendData()">전송</button>
+            <button onclick="closeModal('confirmModal')" style="background-color: #FF3B30;">취소</button>
+        </div>
+    </div>
+
+    <script>
+        let storage = {
+            setItem: function(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (e) {
+                    console.warn('localStorage is not available, using memory storage');
+                    this[key] = value;
+                }
+            },
+            getItem: function(key) {
+                try {
+                    return localStorage.getItem(key);
+                } catch (e) {
+                    console.warn('localStorage is not available, using memory storage');
+                    return this[key];
+                }
+            },
+            removeItem: function(key) {
+                try {
+                    localStorage.removeItem(key);
+                } catch (e) {
+                    console.warn('localStorage is not available, using memory storage');
+                    delete this[key];
+                }
+            }
+        };
+
+        window.onload = function() {
+            const savedUserId = storage.getItem('userId');
+            if (savedUserId) {
+                document.getElementById('userId').value = savedUserId;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        function login() {
+            const userId = document.getElementById('userId').value;
+            if (userId) {
+                if (document.getElementById('rememberMe').checked) {
+                    storage.setItem('userId', userId);
+                } else {
+                    storage.removeItem('userId');
+                }
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('countingPage').classList.remove('hidden');
+                document.getElementById('gpsConsentModal').style.display = 'block';
+            } else {
+                alert('유효한 ID를 입력해주세요.');
+            }
+        }
+
+        function logout() {
+            document.getElementById('countingPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('countInput').value = '';
+        }
+
+        function agreeToGPS() {
+            closeModal('gpsConsentModal');
+            // 여기에 GPS 좌표 수집 로직을 추가할 수 있습니다.
+        }
+
+        function submitCount() {
+            let count = document.getElementById('countInput').value;
+            document.getElementById('confirmedCount').textContent = count;
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+
+        function sendData() {
+            // 실제로는 서버에 데이터 전송 필요
+            alert('데이터가 전송되었습니다.');
+            closeModal('confirmModal');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+    </script>
+</body>
+</html>
