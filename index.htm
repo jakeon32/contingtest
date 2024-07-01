@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Web App</title>
+    <title>모바일 웹 앱</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
 </head>
@@ -11,9 +11,10 @@
     <!-- ID 입력 화면 -->
     <div id="id-screen" class="screen active">
         <div class="container">
-            <h1>Enter your ID</h1>
-            <input type="text" id="user-id" placeholder="Enter your ID">
-            <button id="id-submit">Submit</button>
+            <h1>ID 입력</h1>
+            <p id="current-time-id"></p>
+            <input type="text" id="user-id" placeholder="ID를 입력하세요">
+            <button id="id-submit">제출</button>
         </div>
     </div>
     
@@ -21,18 +22,19 @@
     <div id="counting-screen" class="screen">
         <div class="container">
             <button id="logout" class="logout">X</button>
-            <h1>Counter</h1>
-            <input type="number" id="count-input" placeholder="Enter a number">
-            <button id="count-submit">Confirm</button>
+            <h1>카운터</h1>
+            <p id="current-time-count"></p>
+            <input type="tel" id="count-input" placeholder="숫자를 입력하세요" pattern="[0-9]*">
+            <button id="count-submit">확인</button>
         </div>
     </div>
 
     <!-- Confirm 창 -->
     <div id="confirm-dialog" class="modal">
         <div class="modal-content">
-            <p>Do you want to send the data?</p>
-            <button id="confirm-send">Send</button>
-            <button id="confirm-cancel">Cancel</button>
+            <p>데이터를 전송하시겠습니까?</p>
+            <button id="confirm-send">전송</button>
+            <button id="confirm-cancel">취소</button>
         </div>
     </div>
 </body>
