@@ -4,6 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmDialog = document.getElementById('confirm-dialog');
     const userIdInput = document.getElementById('user-id');
     const countInput = document.getElementById('count-input');
+    const currentTimeId = document.getElementById('current-time-id');
+    const currentTimeCount = document.getElementById('current-time-count');
+
+    // 현재 시간 업데이트 함수
+    function updateTime() {
+        const now = new Date();
+        const formattedTime = now.toLocaleTimeString('ko-KR', { hour12: false });
+        currentTimeId.textContent = `현재 시간: ${formattedTime}`;
+        currentTimeCount.textContent = `현재 시간: ${formattedTime}`;
+    }
 
     // ID 제출 버튼 클릭 이벤트
     document.getElementById('id-submit').addEventListener('click', () => {
@@ -14,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             countingScreen.classList.add('active');
             requestLocation();
         } else {
-            alert('Please enter your ID.');
+            alert('ID를 입력하세요.');
         }
     });
 
@@ -31,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (count) {
             confirmDialog.style.display = 'block';
         } else {
-            alert('Please enter a number.');
+            alert('숫자를 입력하세요.');
         }
     });
 
@@ -54,16 +64,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function requestLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((position) => {
-                console.log(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+                console.log(`위도: ${position.coords.latitude}, 경도: ${position.coords.longitude}`);
             }, () => {
-                alert('Geolocation is not supported by this browser.');
+                alert('이 브라우저는 지리적 위치를 지원하지 않습니다.');
             });
         }
     }
 
     // 데이터 전송 (구현 필요)
     function sendData(userId, count) {
-        console.log(`Sending data: ID=${userId}, Count=${count}`);
+        console.log(`데이터 전송: ID=${userId}, Count=${count}`);
         // 실제 서버에 데이터 전송 로직 구현 필요
     }
+
+    // 초기 시간 설정 및 1초마다 시간 업데이트
+    updateTime();
+    setInterval(updateTime, 1000);
 });
